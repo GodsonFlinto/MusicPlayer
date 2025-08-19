@@ -87,11 +87,11 @@ const SongDetails = () => {
 
   return (
     <div className="flex flex-col">
-      <DetailsHeader artistId="" songData={songData} activeSong={currentSong} />
+      <DetailsHeader artistId="" songData={songData} activeSong={activeSong} />
 
       <div className="mb-10">
         <h2 className="text-violet-400 text-4xl font-bold mb-4 px-6">Lyrics</h2>
-        <h1 className="text-violet-200 font-semibold text-2xl px-6">{`🎶 ${currentSong.title} by ${currentSong.artistName}`}</h1>
+        <h1 className="text-violet-200 font-semibold text-2xl px-6">{`🎶 ${activeSong.title} by ${activeSong.artistName}`}</h1>
         <div className="mt-3 space-y-4 w-full px-6">
           {lyrics.map((line, i) => (
             <p

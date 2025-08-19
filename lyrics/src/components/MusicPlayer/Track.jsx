@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Track = ({ isPlaying, isActive, activeSong }) => (
   <div className="flex-1 flex items-center justify-start">
@@ -7,10 +8,10 @@ const Track = ({ isPlaying, isActive, activeSong }) => (
     </div>
     <div className="w-[50%]">
       <p className="truncate text-white font-bold text-lg">
-        {activeSong?.title ? activeSong?.title : 'No active Song'}
+        <Link to={`/songs/${activeSong.id}`}>{activeSong?.title ? activeSong?.title : 'No active Song'}</Link>
       </p>
       <p className="truncate text-gray-300">
-        {activeSong?.artistName ? activeSong?.artistName : 'No active Song'}
+        <Link to={`/artists/${activeSong.artistName || 'unknown'}`}> {activeSong?.artistName ? activeSong?.artistName : 'No active Song'}</Link>
       </p>
     </div>
   </div>
