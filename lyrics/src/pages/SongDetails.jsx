@@ -51,7 +51,7 @@ const SongDetails = () => {
 
   // Shuffle and pick N songs
   const [relatedSongs, setRelatedSongs] = useState([]);
-  
+
 
   // shuffle only when songid changes
   useEffect(() => {
@@ -66,7 +66,7 @@ const SongDetails = () => {
 
   const handlePauseClick = () => dispatch(playPause(false));
   const handlePlayClick = (song, i) => {
-    dispatch(setActiveSong({ song, data: relatedSongs, data, i }));
+    dispatch(setActiveSong({ song, data : relatedSongs, i }));
     dispatch(playPause(true));
   };
 

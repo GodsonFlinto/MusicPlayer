@@ -33,6 +33,14 @@ import monica from "../../music/Monica.mp3";
 import arabickuthu from "../../music/Arabic Kuthu.mp3";
 import huntervantaar from "../../music/Hunter Vantaar.mp3";
 import defaultSong from "../../music/Salambala.mp3";
+// Map of country codes to Spotify Top 50 playlist IDs
+const countryTop50Map = {
+  IN: "37i9dQZEVXbLZ52XmnySJg", // India
+  US: "37i9dQZEVXbLRQDuF5jeBp", // USA
+  GB: "37i9dQZEVXbLnolsZ8PSNw", // UK
+  GLOBAL: "37i9dQZEVXbMDoHDwVN2tF", // Global
+  // add more countries as needed
+};
 
 export const localSongMap = [
   { title: "Aasa Kooda", src: aasaKooda },
@@ -175,6 +183,80 @@ export const shazamCoreApi = createApi({
       },
     }),
 
+        // ✅ Get Songs By Country
+    getTopChartsCountry: builder.query({
+      async queryFn() {
+        try {
+          const token = await getSpotifyToken(
+            SPOTIFY_CLIENT_ID,
+            SPOTIFY_CLIENT_SECRET
+          );
+
+          const searchQueries = [
+            "trending now india",
+            "top indian actors songs"
+            
+            
+          ];
+          const allTracks = [];
+
+          // Fetch Spotify tracks
+          for (const query of searchQueries) {
+            const res = await fetch(
+              `https://api.spotify.com/v1/search?q=${encodeURIComponent(
+                query
+              )}&type=track&limit=50`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            const data = await res.json();
+            if (data?.tracks?.items) allTracks.push(...data.tracks.items);
+          }
+
+          // Deduplicate tracks
+          const uniqueTracks = Array.from(
+            new Map(allTracks.map((t) => [t.id, t])).values()
+          );
+
+          // Map final songs
+          const finalSongs = await Promise.all(
+            uniqueTracks.map(async (track) => {
+              const titleLower = track.name.toLowerCase();
+
+              // Match with local songs
+              const match = localSongMap.find(({ title }) =>
+                titleLower.includes(title.toLowerCase())
+              );
+
+              // Fetch real artist details (first artist only for image)
+              const mainArtist = track.artists[0]?.name;
+              const artistDetails = mainArtist
+                ? await fetchArtist(token, mainArtist)
+                : null;
+
+              return {
+                id: track.id,
+                title: track.name,
+                artistName: track.artists.map((a) => a.name).join(", "),
+                albumName: track.album.name,
+                artwork: track.album.images[0]?.url || "",
+                artistImage:
+                  artistDetails?.images?.[0]?.url || track.album.images[0]?.url,
+                previewUrl: match
+                  ? match.src
+                  : track.preview_url || defaultSong,
+              };
+            })
+          );
+
+          return { data: finalSongs };
+        } catch (err) {
+          console.error("Spotify fetch error:", err);
+          return { error: { status: "FETCH_ERROR", error: err.message } };
+        }
+      },
+    }),
+
+
     // ✅ Get Top Artists (unique, no duplicates)
     getTopArtists: builder.query({
       async queryFn() {
@@ -238,4 +320,4 @@ export const shazamCoreApi = createApi({
   }),
 });
 
-export const { useGetTopChartsQuery, useGetTopArtistsQuery } = shazamCoreApi;
+export const { useGetTopChartsQuery, useGetTopArtistsQuery,   useGetTopChartsCountryQuery } = shazamCoreApi;

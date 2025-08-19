@@ -10,7 +10,7 @@ import {genres} from '../assets/constants'
 const Discover = () => {
   const { activeSong, isPlaying } = useSelector((state) => state.player);
   const { data=[], isFetching, error } = useGetTopChartsQuery();
-// console.log(data)
+//console.log(data)
   if (isFetching) return <Loader title="Songs Loading..." />;
   if (error) return <Error />;
 
