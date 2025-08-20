@@ -18,7 +18,7 @@ console.log(country, data)
         .finally(()=> setLoading(false))
     }, [])
 
-    if(isFetching && loading) return <Loader title="Loading songs around you"/>
+    if(isFetching) return <Loader title="Loading songs around you"/>
 
     if(error && country) return <Error />
 

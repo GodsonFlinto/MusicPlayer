@@ -24,7 +24,7 @@ const TopChartCard = ({ song, i, isPlaying, activeSong, handlePauseClick, handle
         <Link to={`/songs/${song.id}`}>
           <p className="text-xl font-bold text-white">{song?.albumName}</p>
         </Link>
-        <Link to={`/songs/${song.artistName.id}`}>
+        <Link to={`/artists/${song.artistId}`}>
           <p className="text-base font-bold text-gray-300 mt-1">
             {song?.artistName}
           </p>
@@ -111,7 +111,7 @@ const TopPlay = () => {
               className="flex justify-center items-center shadow-lg rounded-full animate-slideleft !w-auto"
               // style={{ width: "auto" }} // ✅ let slide size fit content
             >
-              <Link to={`/artists/${song?.artistName.id}`}>
+              <Link to={`/artists/${song?.artistId}`}>
                 <img
                   src={song?.artistImage}
                   alt={song?.artistName}

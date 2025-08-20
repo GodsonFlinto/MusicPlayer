@@ -11,7 +11,7 @@ const Track = ({ isPlaying, isActive, activeSong }) => (
         <Link to={`/songs/${activeSong.id}`}>{activeSong?.title ? activeSong?.title : 'No active Song'}</Link>
       </p>
       <p className="truncate text-gray-300">
-        <Link to={`/artists/${activeSong.artistName || 'unknown'}`}> {activeSong?.artistName ? activeSong?.artistName : 'No active Song'}</Link>
+        <Link to={`/artists/${activeSong.artistId || 'unknown'}`}> {activeSong?.artistName ? activeSong?.artistName : 'No active Song'}</Link>
       </p>
     </div>
   </div>

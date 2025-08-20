@@ -11,6 +11,7 @@ const RelatedSongs = ({
     <h2 className="text-violet-400 text-4xl font-bold mb-6 px-6">
       Related Songs
     </h2>
+
     <div className="mt-6 w-full flex flex-col">
       {relatedSongs.map((song, i) => (
         <SongBar
@@ -26,5 +27,4 @@ const RelatedSongs = ({
     </div>
   </div>
 );
-
 export default RelatedSongs;

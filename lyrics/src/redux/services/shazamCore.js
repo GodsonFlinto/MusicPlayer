@@ -123,7 +123,6 @@ export const shazamCoreApi = createApi({
             "thalapathy vijay hits",
             "english top",
             "tamil new",
-            
           ];
           const allTracks = [];
 
@@ -165,6 +164,7 @@ export const shazamCoreApi = createApi({
                 title: track.name,
                 artistName: track.artists.map((a) => a.name).join(", "),
                 albumName: track.album.name,
+                artistId: track.artists[0]?.id,
                 artwork: track.album.images[0]?.url || "",
                 artistImage:
                   artistDetails?.images?.[0]?.url || track.album.images[0]?.url,
@@ -183,7 +183,54 @@ export const shazamCoreApi = createApi({
       },
     }),
 
-        // ✅ Get Songs By Country
+    // ✅ Get Artist Details
+    // ✅ Get Artist Details
+getArtistDetails: builder.query({
+  async queryFn(artistId) {
+    try {
+      const token = await getSpotifyToken(
+        SPOTIFY_CLIENT_ID,
+        SPOTIFY_CLIENT_SECRET
+      );
+
+      const res = await fetch(
+        `https://api.spotify.com/v1/artists/${artistId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = await res.json();
+
+      // Spotify artist object looks like:
+      // { id, name, images, genres, followers, popularity, ... }
+
+      return { data };
+    } catch (err) {
+      return { error: { status: "FETCH_ERROR", error: err.message } };
+    }
+  },
+}),
+
+
+    getArtistTopTracks: builder.query({
+  async queryFn(artistId) {
+    try {
+      const token = await getSpotifyToken(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET);
+
+      const res = await fetch(
+        `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await res.json();
+
+      return { data: data.tracks };
+    } catch (err) {
+      return { error: { status: "FETCH_ERROR", error: err.message } };
+    }
+  },
+}),
+
+    // ✅ Get Songs By Country
     getTopChartsCountry: builder.query({
       async queryFn() {
         try {
@@ -194,9 +241,7 @@ export const shazamCoreApi = createApi({
 
           const searchQueries = [
             "trending now india",
-            "top indian actors songs"
-            
-            
+            "top indian actors songs",
           ];
           const allTracks = [];
 
@@ -255,69 +300,12 @@ export const shazamCoreApi = createApi({
         }
       },
     }),
-
-
-    // ✅ Get Top Artists (unique, no duplicates)
-    getTopArtists: builder.query({
-      async queryFn() {
-        try {
-          const token = await getSpotifyToken(
-            SPOTIFY_CLIENT_ID,
-            SPOTIFY_CLIENT_SECRET
-          );
-
-          const searchQueries = [
-            "top artist",
-            "latest tamil artist",
-            "english artist"
-          ];
-          const allArtists = [];
-          const seen = new Set();
-
-          for (const query of searchQueries) {
-            const res = await fetch(
-              `https://api.spotify.com/v1/search?q=${encodeURIComponent(
-                query
-              )}&type=track&limit=20`,
-              { headers: { Authorization: `Bearer ${token}` } }
-            );
-            const data = await res.json();
-
-            if (data?.tracks?.items) {
-              for (const track of data.tracks.items) {
-                for (const artist of track.artists) {
-                  if (!seen.has(artist.id)) {
-                    seen.add(artist.id);
-
-                    // Fetch full artist details
-                    const details = await fetchArtist(token, artist.name);
-
-                    if (details) {
-                      allArtists.push({
-                        id: details.id,
-                        name: details.name,
-                        image:
-                          details.images?.[0]?.url ||
-                          track.album.images[0]?.url,
-                        genres: details.genres,
-                        followers: details.followers,
-                        popularity: details.popularity,
-                      });
-                    }
-                  }
-                }
-              }
-            }
-          }
-
-          return { data: allArtists };
-        } catch (err) {
-          console.error("Spotify fetch error (artists):", err);
-          return { error: { status: "FETCH_ERROR", error: err.message } };
-        }
-      },
-    }),
   }),
 });
 
-export const { useGetTopChartsQuery, useGetTopArtistsQuery,   useGetTopChartsCountryQuery } = shazamCoreApi;
+export const {
+  useGetTopChartsQuery,
+  useGetArtistDetailsQuery,
+  useGetArtistTopTracksQuery,
+  useGetTopChartsCountryQuery,
+} = shazamCoreApi;

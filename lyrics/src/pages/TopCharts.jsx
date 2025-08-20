@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import axios from 'axios';
 import { useGetTopChartsQuery } from '../redux/services/shazamCore';
 import {Error, Loader, SongCard} from '../components'
 
@@ -14,7 +12,6 @@ const TopCharts = () => {
     if(isFetching) return <Loader title="Loading top charts"/>
 
     if(error) return <Error />
-
 
     return (
         <div className='flex flex-col'>

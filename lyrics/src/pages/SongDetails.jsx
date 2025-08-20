@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { DetailsHeader, RelatedSongs } from "../components";
 import { useGetTopChartsQuery } from "../redux/services/shazamCore";
 import { playPause, setActiveSong } from "../redux/features/playerSlice";
-import { data } from "autoprefixer";
 // 🎵 Generate sleek Spotify-like placeholder lyrics
 const generateLyrics = () => [
   "If you wanna run away with me",
@@ -45,13 +44,14 @@ const SongDetails = () => {
     (song) => String(song.id) === String(songid)
   );
 
+  console.log(currentSong)
   const lyrics = currentSong
-    ? generateLyrics(currentSong.title, currentSong.artistName)
+    ? generateLyrics(currentSong?.title, currentSong?.artistName)
     : ["Lyrics not available for this song."];
 
   // Shuffle and pick N songs
   const [relatedSongs, setRelatedSongs] = useState([]);
-
+  
 
   // shuffle only when songid changes
   useEffect(() => {
@@ -66,7 +66,7 @@ const SongDetails = () => {
 
   const handlePauseClick = () => dispatch(playPause(false));
   const handlePlayClick = (song, i) => {
-    dispatch(setActiveSong({ song, data : relatedSongs, i }));
+    dispatch(setActiveSong({ song, data: relatedSongs, i }));
     dispatch(playPause(true));
   };
 
@@ -85,13 +85,15 @@ const SongDetails = () => {
     return () => clearInterval(interval);
   }, [isPlaying, lyrics.length]);
 
+  console.log(relatedSongs)
   return (
     <div className="flex flex-col">
-      <DetailsHeader artistId="" songData={songData} activeSong={activeSong} />
+      <DetailsHeader artistId="" songData={songData} activeSong={currentSong} handlePauseClick={handlePauseClick}
+        handlePlayClick={handlePlayClick} isPlaying={isPlaying}/>
 
       <div className="mb-10">
         <h2 className="text-violet-400 text-4xl font-bold mb-4 px-6">Lyrics</h2>
-        <h1 className="text-violet-200 font-semibold text-2xl px-6">{`🎶 ${activeSong.title} by ${activeSong.artistName}`}</h1>
+        <h1 className="text-violet-200 font-semibold text-2xl px-6">{`🎶 ${currentSong?.title} by ${currentSong?.artistName}`}</h1>
         <div className="mt-3 space-y-4 w-full px-6">
           {lyrics.map((line, i) => (
             <p
