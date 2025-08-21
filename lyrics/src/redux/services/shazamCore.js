@@ -183,52 +183,178 @@ export const shazamCoreApi = createApi({
       },
     }),
 
-    // ✅ Get Artist Details
-    // ✅ Get Artist Details
-getArtistDetails: builder.query({
-  async queryFn(artistId) {
-    try {
-      const token = await getSpotifyToken(
-        SPOTIFY_CLIENT_ID,
-        SPOTIFY_CLIENT_SECRET
-      );
+    getSongsbyGenre: builder.query({
+      async queryFn(genreId) {
+        // <-- accept genreId as parameter
+        try {
+          const token = await getSpotifyToken(
+            SPOTIFY_CLIENT_ID,
+            SPOTIFY_CLIENT_SECRET
+          );
 
-      const res = await fetch(
-        `https://api.spotify.com/v1/artists/${artistId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
+          // Use only the selected genre for search
+          const searchQuery = genreId || "pop"; // default to pop if undefined
+          const res = await fetch(
+            `https://api.spotify.com/v1/search?q=${encodeURIComponent(
+              searchQuery
+            )}&type=track&limit=50`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          const data = await res.json();
+          const tracks = data?.tracks?.items || [];
+
+          // Map final songs
+          const finalSongs = await Promise.all(
+            tracks.map(async (track) => {
+              const titleLower = track.name.toLowerCase();
+              const match = localSongMap.find(({ title }) =>
+                titleLower.includes(title.toLowerCase())
+              );
+
+              const mainArtist = track.artists[0]?.name;
+              const artistDetails = mainArtist
+                ? await fetchArtist(token, mainArtist)
+                : null;
+
+              return {
+                id: track.id,
+                title: track.name,
+                artistName: track.artists.map((a) => a.name).join(", "),
+                albumName: track.album.name,
+                artistId: track.artists[0]?.id,
+                artwork: track.album.images[0]?.url || "",
+                artistImage:
+                  artistDetails?.images?.[0]?.url || track.album.images[0]?.url,
+                previewUrl: match
+                  ? match.src
+                  : track.preview_url || defaultSong,
+              };
+            })
+          );
+
+          return { data: finalSongs };
+        } catch (err) {
+          console.error("Spotify fetch error:", err);
+          return { error: { status: "FETCH_ERROR", error: err.message } };
         }
-      );
-      const data = await res.json();
+      },
+    }),
 
-      // Spotify artist object looks like:
-      // { id, name, images, genres, followers, popularity, ... }
+    //// ✅ Get Search Details
+    getSongsBySearch: builder.query({
+      // Accept searchTerm as a parameter
+      async queryFn(searchTerm) {
+        try {
+          // Get Spotify access token
+          const token = await getSpotifyToken(
+            SPOTIFY_CLIENT_ID,
+            SPOTIFY_CLIENT_SECRET
+          );
 
-      return { data };
-    } catch (err) {
-      return { error: { status: "FETCH_ERROR", error: err.message } };
-    }
-  },
-}),
+          // Default to "pop" if searchTerm is undefined
+          const query = searchTerm || "pop";
 
+          // Fetch tracks from Spotify
+          const res = await fetch(
+            `https://api.spotify.com/v1/search?q=${encodeURIComponent(
+              query
+            )}&type=track&limit=50`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          const data = await res.json();
+          const tracks = data?.tracks?.items || [];
+
+          // Map tracks into your desired format
+          const finalSongs = await Promise.all(
+            tracks.map(async (track) => {
+              const titleLower = track.name.toLowerCase();
+
+              // Match with local songs if needed
+              const match = localSongMap.find(({ title }) =>
+                titleLower.includes(title.toLowerCase())
+              );
+
+              // Get artist details
+              const mainArtist = track.artists[0]?.name;
+              const artistDetails = mainArtist
+                ? await fetchArtist(token, mainArtist)
+                : null;
+
+              return {
+                id: track.id,
+                title: track.name,
+                artistName: track.artists.map((a) => a.name).join(", "),
+                albumName: track.album.name,
+                artistId: track.artists[0]?.id,
+                artwork: track.album.images[0]?.url || "",
+                artistImage:
+                  artistDetails?.images?.[0]?.url || track.album.images[0]?.url,
+                previewUrl: match
+                  ? match.src
+                  : track.preview_url || defaultSong,
+              };
+            })
+          );
+
+          return { data: finalSongs };
+        } catch (err) {
+          console.error("Spotify search fetch error:", err);
+          return { error: { status: "FETCH_ERROR", error: err.message } };
+        }
+      },
+    }),
+
+    // ✅ Get Artist Details
+    getArtistDetails: builder.query({
+      async queryFn(artistId) {
+        try {
+          const token = await getSpotifyToken(
+            SPOTIFY_CLIENT_ID,
+            SPOTIFY_CLIENT_SECRET
+          );
+
+          const res = await fetch(
+            `https://api.spotify.com/v1/artists/${artistId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          const data = await res.json();
+
+          // Spotify artist object looks like:
+          // { id, name, images, genres, followers, popularity, ... }
+
+          return { data };
+        } catch (err) {
+          return { error: { status: "FETCH_ERROR", error: err.message } };
+        }
+      },
+    }),
 
     getArtistTopTracks: builder.query({
-  async queryFn(artistId) {
-    try {
-      const token = await getSpotifyToken(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET);
+      async queryFn(artistId) {
+        try {
+          const token = await getSpotifyToken(
+            SPOTIFY_CLIENT_ID,
+            SPOTIFY_CLIENT_SECRET
+          );
 
-      const res = await fetch(
-        `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      const data = await res.json();
+          const res = await fetch(
+            `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          const data = await res.json();
 
-      return { data: data.tracks };
-    } catch (err) {
-      return { error: { status: "FETCH_ERROR", error: err.message } };
-    }
-  },
-}),
+          return { data: data.tracks };
+        } catch (err) {
+          return { error: { status: "FETCH_ERROR", error: err.message } };
+        }
+      },
+    }),
 
     // ✅ Get Songs By Country
     getTopChartsCountry: builder.query({
@@ -305,7 +431,9 @@ getArtistDetails: builder.query({
 
 export const {
   useGetTopChartsQuery,
+  useGetSongsbyGenreQuery,
   useGetArtistDetailsQuery,
   useGetArtistTopTracksQuery,
   useGetTopChartsCountryQuery,
+  useGetSongsBySearchQuery,
 } = shazamCoreApi;
