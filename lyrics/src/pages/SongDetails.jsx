@@ -44,7 +44,7 @@ const SongDetails = () => {
     (song) => String(song.id) === String(songid)
   );
 
-  console.log(currentSong)
+  //console.log(currentSong)
   const lyrics = currentSong
     ? generateLyrics(currentSong?.title, currentSong?.artistName)
     : ["Lyrics not available for this song."];
@@ -85,7 +85,7 @@ const SongDetails = () => {
     return () => clearInterval(interval);
   }, [isPlaying, lyrics.length]);
 
-  console.log(relatedSongs)
+  //console.log(relatedSongs)
   return (
     <div className="flex flex-col">
       <DetailsHeader artistId="" songData={songData} activeSong={currentSong} handlePauseClick={handlePauseClick}

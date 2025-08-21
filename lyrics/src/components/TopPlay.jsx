@@ -51,7 +51,7 @@ const TopPlay = () => {
   });
 
   const topPlays = data?.slice(0, 5);
-
+  const topArtist = data?.slice(5,12)
   const handlePauseClick = () => {
     dispatch(playPause(false));
   };
@@ -72,7 +72,7 @@ const TopPlay = () => {
             <p className="text-gray-300 text-base cursor-pointer">See More</p>
           </Link>
         </div>
-        <div className="mt-4 flex flex-col gap-1">
+        <div className="mt-3 flex flex-col">
           {topPlays?.map((song, i) => (
             <TopChartCard 
             song={song} 
@@ -105,7 +105,7 @@ const TopPlay = () => {
           modules={[FreeMode]}
           className="mt-4"
         >
-          {topPlays?.map((song, i) => (
+          {topArtist?.map((song, i) => (
             <SwiperSlide
               key={song?.id}
               className="flex justify-center items-center shadow-lg rounded-full animate-slideleft !w-auto"

@@ -24,7 +24,7 @@ const selectedSong = songData?.find((song) => song.id === activeSong?.id) || son
             <img
               src={selectedSong?.artwork}
               alt="artwork"
-              className="w-32 h-32 rounded-lg object-cover shadow-lg"
+              className="w-40 h-40 rounded-lg object-cover shadow-lg"
             />
 
             <div className="flex flex-col">

@@ -85,10 +85,12 @@ const ArtistDetails = () => {
                   artwork: song.album.images[0]?.url,
                   previewUrl: song.preview_url,
                   duration: song.duration_ms,
+                  artists: song.artists
                 }}
+        
                 i={i}
                 isPlaying={isPlaying}
-                activeSong={activeSong.song}
+                activeSong={activeSong}
                 handlePauseClick={handlePauseClick}
                 handlePlayClick = {() => handlePlayClick(song, i)}
               />
